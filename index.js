@@ -4,7 +4,7 @@ import { OpenAI } from './api/openaiApi.js';
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
 
 dotenv.config();
-console.log(Object.keys(openai));
+console.log(Object.keys(OpenAI));
 console.log('OpenAI object:', OpenAI);
 
 const client = new Discord.Client({
