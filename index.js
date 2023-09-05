@@ -1,6 +1,7 @@
 import Discord from "discord.js";
-import { openaiAnswer } from "./helpers.js";
 import dotenv from "dotenv";
+import { openaiAnswer, generateLessonPlan } from "./helpers.js";
+
 
 dotenv.config();
 const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
@@ -26,7 +27,9 @@ client.on("message", async message => {
     message.reply("pong");
     return;
   }
-
+  if (message.content.startsWith("/lessonplan")) {
+    generateLessonPlan(message, client);
+  }
   if (message.content.startsWith("!")) {
     //custom commands
   }

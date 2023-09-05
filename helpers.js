@@ -9,3 +9,16 @@ export async function openaiAnswer(message, client) {
         }
     });
 }
+export async function generateLessonPlan(message, client) {
+    const topic = message.content.replace("/lessonplan", "").trim();
+    if (!topic) {
+      message.reply("Please specify a topic. Usage: `/lessonplan [topic]`");
+      return;
+    }
+    
+    getLessonPlan(topic).then(result => {
+      if (result && result.trim() !== '') {
+        message.reply(`Here's your lesson plan:\n${result}`);
+      }
+    });
+  }
