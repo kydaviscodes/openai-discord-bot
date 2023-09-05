@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
 
 dotenv.config();
+console.log(Object.keys(openai));
+console.log('OpenAI object:', openai);
 
 const client = new Discord.Client({
     intents: [
