@@ -1,18 +1,16 @@
 import dotenv from "dotenv";
-import { Configuration, OpenAIApi } from "openai";
-const configuration = new Configuration({
-    organization: "org-m9BQy031ZBA2MrLLg4uguYwq",
-    apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
-const response = await openai.listEngines();
+import { OpenAIApi } from "openai";
 
 dotenv.config();
 
+const openai = new OpenAIApi({
+  key: process.env.OPENAI_API_KEY,
+});
 
 export async function getAnswer(question) {
   try {
-    const chatResponse = await openai.createChatCompletion("gpt-4", {
+    const chatResponse = await openai.chat.create({
+      model: "gpt-4",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: question }
@@ -32,7 +30,8 @@ export async function getAnswer(question) {
 
 export async function getLessonPlan(topic) {
   try {
-    const chatResponse = await openai.createChatCompletion("gpt-4", {
+    const chatResponse = await openai.chat.create({
+      model: "gpt-4",
       messages: [
         { role: "system", content: "You are a helpful assistant specialized in creating lesson plans." },
         { role: "user", content: `Create a preschool lesson plan about ${topic}.` }
