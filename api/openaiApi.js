@@ -11,7 +11,7 @@ const openai = new OpenAIApi(configuration);
 
 export async function getAnswer(question) {
   try {
-    const completion = await openai.createCompletion("gpt-3.5-turbo-0301", {
+    const completion = await openai.createCompletion("gpt-4	", {
       prompt: question,
       temperature: 0.6,
       max_tokens: 600,
@@ -34,7 +34,7 @@ export async function getAnswer(question) {
 
 export async function getLessonPlan(topic) {
   try {
-    const completion = await openai.createCompletion("gpt-3.5-turbo-0301", {
+    const completion = await openai.createCompletion("gpt-4", {
       prompt: `Create a preschool lesson plan about ${topic}.`,
       temperature: 0.6,
       max_tokens: 600,
