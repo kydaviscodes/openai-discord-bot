@@ -1,12 +1,13 @@
+import { Configuration, OpenAIApi } from "openai";
 import dotenv from "dotenv";
-import OpenAI from 'openai';
-
 
 dotenv.config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
+const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY
 });
+
+const openai = new OpenAIApi(configuration);
 
 export async function getAnswer(question) {
   try {
