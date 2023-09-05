@@ -12,19 +12,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/osman-koc/openai-discord-bot.git"
+    "url": "git+https://github.com/kylestocks/openai-discord-bot.git"
   },
   "keywords": [
     "openai",
     "discord",
     "bot"
   ],
-  "author": "osmankoc",
+  "author": "kylestocks",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/osman-koc/openai-discord-bot/issues"
+    "url": "https://github.com/kylestocks/openai-discord-bot.git"
   },
-  "homepage": "https://github.com/osman-koc/openai-discord-bot#readme",
+  "homepage": "https://github.com/kylestocks/openai-discord-bot.git#readme",
   "dependencies": {
     "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
