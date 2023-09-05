@@ -11,7 +11,7 @@ const openai = new OpenAIApi(configuration);
 
 export async function getAnswer(question) {
   try {
-    const completion = await openai.createCompletion("gpt-4	", {
+    const completion = await openai.createCompletion("gpt-4", {
       prompt: question,
       temperature: 0.6,
       max_tokens: 600,
