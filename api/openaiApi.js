@@ -50,3 +50,4 @@ export async function getLessonPlan(topic) {
     return "Sorry, an error occurred while generating the lesson plan.";
   }
 }
+export { openai as OpenAI };
