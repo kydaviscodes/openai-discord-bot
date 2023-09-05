@@ -26,8 +26,8 @@
   },
   "homepage": "https://github.com/osman-koc/openai-discord-bot#readme",
   "dependencies": {
-    "discord.js": "^12.5.3",
-    "dotenv": "^16.0.0",
-    "openai": "^2.0.5"
+    "discord.js": "^14.13.30",
+    "dotenv": "^16.3.1",
+    "openai": "^4.4.0"
   }
 }
