@@ -6,6 +6,9 @@ import { openaiAnswer, generateLessonPlan } from "./helpers.js";
 dotenv.config();
 console.log(Object.keys(OpenAI));
 console.log('OpenAI object:', OpenAI);
+console.log("Is OPENAI_API_KEY defined?", Boolean(process.env.OPENAI_API_KEY));
+console.log("OpenAI initialized object:", openai);
+console.log("Is ChatCompletion.create available?", Boolean(openai.ChatCompletion && openai.ChatCompletion.create));
 
 const client = new Discord.Client({
     intents: [
