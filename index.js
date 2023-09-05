@@ -1,6 +1,6 @@
 import Discord, { Client, GatewayIntentBits } from "discord.js";
 import dotenv from "dotenv";
-import { OpenAI } from '.api/openaiAPI.js';
+import { OpenAI } from './api/openaiApi.js';
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
 
 dotenv.config();
