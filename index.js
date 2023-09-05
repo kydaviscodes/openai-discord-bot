@@ -1,4 +1,4 @@
-import Discord, { GatewayIntentBits } from "discord.js";
+import Discord, { Client, GatewayIntentBits } from "discord.js";
 import dotenv from "dotenv";
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
 
@@ -6,9 +6,10 @@ dotenv.config();
 
 const client = new Discord.Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        // Add other intents as needed
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildMembers,
     ]
 });
 
