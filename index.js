@@ -19,6 +19,7 @@ client.on("disconnect", () => {
 });
 
 client.on("message", async message => {
+  try {
   if (message.author.bot) return;
 
   if (message.content.includes("@here") || message.content.includes("@everyone") || message.type == "REPLY") return;
@@ -27,14 +28,16 @@ client.on("message", async message => {
     message.reply("pong");
     return;
   }
-  if (message.content.startsWith("/lessonplan")) {
-    generateLessonPlan(message, client);
-  }
-  if (message.content.startsWith("!")) {
-    //custom commands
+  if (message.content.startsWith("/")) {
+    if (message.content.startsWith("/lessonplan")) {
+      generateLessonPlan(message, client);
+    }
   }
   if (message.mentions.has(client.user.id) || message.content.toString().includes(process.env.ROBOT_USER_ID)) {
     openaiAnswer(message, client);
+  }
+  } catch (error) {
+    console.error('Error in message event:', error);
   }
 });
 
