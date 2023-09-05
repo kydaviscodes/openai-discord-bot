@@ -25,7 +25,8 @@ client.on("disconnect", () => {
     console.log(`Disconnect - ${client.user.tag}!`);
 });
 
-client.on("message", async (message) => {
+client.on("messageCreate", async (message) => {
+  console.log(`Received message: ${message.content}`);
     try {
         if (message.author.bot) return;
 
