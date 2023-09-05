@@ -1,10 +1,11 @@
-import Discord from "discord.js";
+import Discord, { Intents } from "discord.js";
 import dotenv from "dotenv";
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
 
-
 dotenv.config();
-const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
+const intents = new Intents(["GUILDS", "GUILD_MESSAGES"]); // Define intents using the Intents class
+
+const client = new Discord.Client({ intents: intents });
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`)
