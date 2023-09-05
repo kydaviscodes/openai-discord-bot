@@ -2,15 +2,14 @@ import OpenAI from "openai";
 import dotenv from "dotenv";
 
 dotenv.config();
-console.log("Is OPENAI_API_KEY defined?", Boolean(process.env.OPENAI_API_KEY));
-console.log("OpenAI initialized object:", openai);
-console.log("Is ChatCompletion.create available?", Boolean(openai.ChatCompletion && openai.ChatCompletion.create));
-
-
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
+
+console.log("OpenAI initialized object:", openai);
+console.log("Is OPENAI_API_KEY defined?", Boolean(process.env.OPENAI_API_KEY));
+console.log("Is ChatCompletion.create available?", Boolean(openai.ChatCompletion && openai.ChatCompletion.create));
 
 export async function getAnswer(question) {
   console.log("Question received:", question);
