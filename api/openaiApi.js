@@ -42,6 +42,7 @@ export async function getLessonPlan (topic) {
         presence_penalty: 0,
         best_of: 1,
       });
+    console.log("API response: ", completion); // Add this line
   
       if (completion.status !== 200) {
         return "Sorry, I can't generate that lesson plan.";
@@ -49,7 +50,7 @@ export async function getLessonPlan (topic) {
   
       return completion.data.choices.map((choice) => choice.text).join("");
     } catch (error) {
-      console.log(error);
+      console.error("API call failed: ", error); // Add this line
       return "Sorry, an error occurred while generating the lesson plan.";
     }
   }
