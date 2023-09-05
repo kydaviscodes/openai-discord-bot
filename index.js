@@ -1,11 +1,11 @@
 import Discord, { Client, GatewayIntentBits } from "discord.js";
 import dotenv from "dotenv";
-import { openai } from '.api/openaiAPI.js';
+import { OpenAI } from '.api/openaiAPI.js';
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
 
 dotenv.config();
 console.log(Object.keys(openai));
-console.log('OpenAI object:', openai);
+console.log('OpenAI object:', OpenAI);
 
 const client = new Discord.Client({
     intents: [
