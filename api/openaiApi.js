@@ -11,21 +11,18 @@ const openai = new OpenAIApi(configuration);
 
 export async function getAnswer(question) {
   try {
-    const completion = await openai.createCompletion("gpt-4", {
-      prompt: question,
-      temperature: 0.6,
-      max_tokens: 600,
-      top_p: 1,
-      frequency_penalty: 0.5,
-      presence_penalty: 0,
-      best_of: 1,
+    const chatResponse = await openai.createChatCompletion("gpt-4", {
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: question }
+      ],
     });
 
-    if (completion.status !== 200) {
+    if (chatResponse.status !== 200) {
       return "Sorry, I don't understand that.";
     }
 
-    return completion.data.choices.map((choice) => choice.text).join("");
+    return chatResponse.data.choices[0]?.message?.content || "No answer available.";
   } catch (error) {
     console.error("Error in getAnswer:", error);
     return "Sorry, I can't answer that question. \n" + error;
@@ -34,21 +31,18 @@ export async function getAnswer(question) {
 
 export async function getLessonPlan(topic) {
   try {
-    const completion = await openai.createCompletion("gpt-4", {
-      prompt: `Create a preschool lesson plan about ${topic}.`,
-      temperature: 0.6,
-      max_tokens: 600,
-      top_p: 1,
-      frequency_penalty: 0.5,
-      presence_penalty: 0,
-      best_of: 1,
+    const chatResponse = await openai.createChatCompletion("gpt-4", {
+      messages: [
+        { role: "system", content: "You are a helpful assistant specialized in creating lesson plans." },
+        { role: "user", content: `Create a preschool lesson plan about ${topic}.` }
+      ],
     });
 
-    if (completion.status !== 200) {
+    if (chatResponse.status !== 200) {
       return "Sorry, I can't generate that lesson plan.";
     }
 
-    return completion.data.choices.map((choice) => choice.text).join("");
+    return chatResponse.data.choices[0]?.message?.content || "No lesson plan available.";
   } catch (error) {
     console.error("Error in getLessonPlan:", error);
     return "Sorry, an error occurred while generating the lesson plan.";
