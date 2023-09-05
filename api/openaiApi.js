@@ -15,7 +15,7 @@ export async function getAnswer(question) {
   console.log("Question received:", question);
   try {
     const chatResponse = await openai.ChatCompletion.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo-0613",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: question }
@@ -36,7 +36,7 @@ export async function getAnswer(question) {
 export async function getLessonPlan(topic) {
   try {
     const chatResponse = await openai.ChatCompletion.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo-0613",
       messages: [
         { role: "system", content: "You are a helpful assistant specialized in creating lesson plans." },
         { role: "user", content: `Create a preschool lesson plan about ${topic}.` }
