@@ -1,38 +1,14 @@
 import dotenv from "dotenv";
-import { Client, GatewayIntentBits } from "discord.js"; // Correct import
 import OpenAI from 'openai';
+
 
 dotenv.config();
 
-const intents = new GatewayIntentBits([
-  "GUILDS",
-  "GUILD_MESSAGES",
-  // Add other intents you need here
-]);
-
-const client = new Client({ intents });
-
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
 });
 
-client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}`);
-});
-
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-
-  if (message.content.startsWith("!ask")) {
-    const question = message.content.slice(5);
-    const answer = await getAnswer(question);
-    message.channel.send(answer);
-  }
-
-  // Add more command handlers or event listeners here
-});
-
-async function getAnswer(question) {
+export async function getAnswer(question) {
   try {
     const chatResponse = await openai.chat.create({
       model: "gpt-4",
@@ -53,4 +29,23 @@ async function getAnswer(question) {
   }
 }
 
-client.login(process.env.BOT_TOKEN);
+export async function getLessonPlan(topic) {
+  try {
+    const chatResponse = await openai.chat.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a helpful assistant specialized in creating lesson plans." },
+        { role: "user", content: `Create a preschool lesson plan about ${topic}.` }
+      ],
+    });
+
+    if (chatResponse.status !== 200) {
+      return "Sorry, I can't generate that lesson plan.";
+    }
+
+    return chatResponse.data.choices[0]?.message?.content || "No lesson plan available.";
+  } catch (error) {
+    console.error("Error in getLessonPlan:", error);
+    return "Sorry, an error occurred while generating the lesson plan.";
+  }
+}
