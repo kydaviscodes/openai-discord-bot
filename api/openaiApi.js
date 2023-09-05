@@ -10,7 +10,7 @@ const openai = new OpenAI({
 
 export async function getAnswer(question) {
   try {
-    const chatResponse = await openai.chat.create({
+    const chatResponse = await openai.ChatCompletion.create({
       model: "gpt-4",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
@@ -31,7 +31,7 @@ export async function getAnswer(question) {
 
 export async function getLessonPlan(topic) {
   try {
-    const chatResponse = await openai.chat.create({
+    const chatResponse = await openai.ChatCompletion.create({
       model: "gpt-4",
       messages: [
         { role: "system", content: "You are a helpful assistant specialized in creating lesson plans." },
