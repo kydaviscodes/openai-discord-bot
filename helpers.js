@@ -80,8 +80,6 @@ function convertToJSON(planText) {
 }
 
 export async function generateLessonPlan(topic, ageGroup, message, client) {
-    const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-    const pdfPath = `./${pdfFileName}`
   try {
     const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
     const topic = userInput[0];
@@ -98,6 +96,8 @@ export async function generateLessonPlan(topic, ageGroup, message, client) {
       console.log("Generated lesson plan: ", result);
 
       const lessonPlanJSON = convertToJSON(result);
+      const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
+      const pdfPath = `./${pdfFileName}`
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
 
