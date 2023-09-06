@@ -102,13 +102,25 @@ export async function generateLessonPlan(message) {
         await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
 
         if (fs.existsSync(pdfPath)) {
-          const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: pdfFileName, contentType: 'application/pdf' });
-          await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
-            files: [attachment]
-          });
-
-          // Delete the loading message
-          loadingMessage.delete();
+          console.log("File exists, attempting to send.");
+        
+          try {
+            const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: pdfFileName, contentType: 'application/pdf' });
+            await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
+              files: [attachment]
+            })
+            .then(() => {
+              console.log("Message with PDF sent successfully.");
+            })
+            .catch(err => {
+              console.error("Error sending message with PDF:", err);
+            });
+        
+            // Delete the loading message
+            loadingMessage.delete();
+          } catch (err) {
+            console.error("Error creating AttachmentBuilder or sending message:", err);
+          }
         } else {
           console.log("File does not exist, cannot send.");
         }
