@@ -110,7 +110,7 @@ export async function generateLessonPlan(message, client) {
           // Use AttachmentBuilder instead of MessageAttachment
           const attachment = new AttachmentBuilder(`./${pdfFileName}`, { contentType: 'application/pdf', name: pdfFileName });
 
-          message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, {
+          await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
             files: [attachment]
           })
           // Debugging Step 2: Check the Promise
