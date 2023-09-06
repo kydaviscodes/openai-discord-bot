@@ -12,7 +12,6 @@ function generatePDF(lessonPlan, topic, ageGroup) {
 
     // Create a new PDF document
     const doc = new PDFDocument();
-    const pdfPath = `./${pdfFileName}`
     // Pipe its output to a writable stream (in this case, a file)
     const writeStream = fs.createWriteStream(pdfFileName);
 
@@ -84,6 +83,7 @@ export async function generateLessonPlan(message, client) {
     const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
     const topic = userInput[0];
     const ageGroup = userInput.slice(1).join(" ");
+    const pdfPath = `./${pdfFileName}`
     console.log("User input topic is: ", topic);
     console.log("User input age group is: ", ageGroup);
 
