@@ -45,7 +45,8 @@ export async function getLessonPlan(topic, ageGroup) {
       presence_penalty: 0,
       stream: true,
     });
-
+    return chatResponse.choices[0]?.message?.content || "No lesson plan available.";
+    
   } catch (error) {
     console.error("Error in getLessonPlan:", error);
     return "Sorry, an error occurred while generating the lesson plan.";
