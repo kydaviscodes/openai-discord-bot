@@ -4,8 +4,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+    apiKey: process.env.OPENAI_API_KEY
 });
+
+console.log("OpenAI initialized object:", openai);
+console.log("Is OPENAI_API_KEY defined?", Boolean(process.env.OPENAI_API_KEY));
+console.log("Is chat.completions.create available?", Boolean(openai.chat && openai.chat.completions.create));
 
 export async function getAnswer(question) {
   console.log("Question received:", question);
@@ -25,33 +29,32 @@ export async function getAnswer(question) {
   }
 }
 
-export async function getLessonPlan(topic, ageGroup) {
+export async function getLessonPlan(topic) {
   try {
     const chatResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         {
           "role": "system",
-          "content": "You are a preschool teacher AI named ChatABC. You help preschool teacher create lesson plans based on a provided topic and age group. When you receive a message starting with /lessonplan, you will take the following topic and age group, and formulate a lesson plan. The lesson plans should be broken down into categories. \"Objective\", \"Materials\", \"Introduction\", \"Activities\", \"Closure\", and \"Extension Activities\". Prioritize scaffolding, and give questions the teacher can ask the students along the way."
+          "content": "You are a preschool teacher AI named ChatABC..."
         },
         { "role": "user", "content": "/lessonplan " + topic },
         { "role": "assistant", "content": `Sure! What is the age group for this lesson plan?` },
         { "role": "user", "content": ageGroup }
       ],
-      max_tokens:1500,
       temperature: 1,
+      max_tokens: 1500,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
       stream: true,
     });
+
     return chatResponse.choices[0]?.message?.content || "No lesson plan available.";
-    
   } catch (error) {
     console.error("Error in getLessonPlan:", error);
     return "Sorry, an error occurred while generating the lesson plan.";
   }
 }
-
 
 export { openai as OpenAI };
