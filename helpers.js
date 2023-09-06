@@ -32,7 +32,13 @@ export async function generateLessonPlan(message, client) {
       console.log("Generated lesson plan: ", result);
       if (result) {
         let replyMessage = "Here's your lesson plan:\n";
+        console.log("Type of result is:", typeof result);
+        console.log("Structure of result:", JSON.stringify(result, null, 2));
         for (const [key, value] of Object.entries(result)) {
+          console.log("Key:", key); // Will print the key
+          console.log("Value:", value); // Will print the value
+          console.log("Type of key:", typeof key); // Will print the type of the key
+          console.log("Type of value:", typeof value); // Will print the type of the value
           replyMessage += `\n**${key}**:\n${value}\n`;
         }
         
