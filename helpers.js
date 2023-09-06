@@ -2,6 +2,8 @@ import { getAnswer, getLessonPlan } from "./api/openaiApi.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
 
+console.log("Current directory:", process.cwd());
+
 // Modified generatePDF function to accept topic and ageGroup
 function generatePDF(lessonPlan, topic, ageGroup) {
   return new Promise((resolve, reject) => {
