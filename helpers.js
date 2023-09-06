@@ -98,19 +98,32 @@ export async function generateLessonPlan(message, client) {
       const lessonPlanJSON = convertToJSON(result);
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
-        message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, {
-          files: [{
-            attachment: `./${pdfFileName}`,
-            contentType: 'application/pdf',
-            name: pdfFileName
-          }]
-        })        
-        .then(() => {
-          console.log('Attempted to send message with PDF');
-        })
-        .catch(error => {
-          console.error('Error while sending PDF:', JSON.stringify(error, null, 2));
-        });        
+
+        // Debugging Step 1: Check if pdfFileName is Correct
+        console.log("Generated PDF File Name:", pdfFileName);
+
+        // Debugging Step 3: Check File Path
+        if (fs.existsSync(`./${pdfFileName}`)) {
+          console.log("File exists, attempting to send.");
+
+          message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, {
+            files: [{
+              attachment: `./${pdfFileName}`,
+              contentType: 'application/pdf',
+              name: pdfFileName
+            }]
+          })
+          // Debugging Step 2: Check the Promise
+          .then(() => {
+            console.log('Attempted to send message with PDF');
+          })
+          .catch(error => {
+            console.error('Error while sending PDF:', JSON.stringify(error, null, 2));  // This should catch any errors
+          });
+        } else {
+          console.log("File does not exist, cannot send.");
+        }
+
       } catch (error) {
         console.error('Error while generating PDF:', error);
       }
