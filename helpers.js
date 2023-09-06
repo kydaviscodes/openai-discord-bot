@@ -12,14 +12,13 @@ function generatePDF(lessonPlan, topic, ageGroup) {
 
     // Create a new PDF document
     const doc = new PDFDocument();
-
+    const pdfPath = `./${pdfFileName}`
     // Pipe its output to a writable stream (in this case, a file)
     const writeStream = fs.createWriteStream(pdfFileName);
 
     doc.pipe(writeStream);
 
     // Add the lesson plan to the PDF
-    doc.text("Here's your lesson plan:\n", { underline: true });
 
     for (const [key, value] of Object.entries(lessonPlan)) {
       doc.text(`\n${key}:\n`, { underline: true });
@@ -108,7 +107,7 @@ export async function generateLessonPlan(message, client) {
           console.log("File exists, attempting to send.");
 
           // Use AttachmentBuilder instead of MessageAttachment
-          const attachment = new AttachmentBuilder(`./${pdfFileName}`, { contentType: 'application/pdf', name: pdfFileName });
+          const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name:`pdfFileName`}, { contentType: 'application/pdf'});
 
           await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
             files: [attachment]
