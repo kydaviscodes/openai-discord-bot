@@ -81,6 +81,9 @@ function convertToJSON(planText) {
 
 export async function generateLessonPlan(topic, ageGroup, message, client) {
   try {
+    // Show a loading message
+    const loadingMessage = await message.reply('Generating your lesson plan, please wait...');
+
     const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
     const topic = userInput[0];
     const ageGroup = userInput.slice(1).join(" ");
@@ -97,30 +100,23 @@ export async function generateLessonPlan(topic, ageGroup, message, client) {
 
       const lessonPlanJSON = convertToJSON(result);
       const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-      const pdfPath = `./${pdfFileName}`
+      const pdfPath = `./${pdfFileName}`;
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
 
-        // Debugging Step 1: Check if pdfFileName is Correct
-        console.log("Generated PDF File Name:", pdfFileName);
-
-        // Debugging Step 3: Check File Path
-        if (fs.existsSync(`./${pdfFileName}`)) {
+        if (fs.existsSync(pdfPath)) {
           console.log("File exists, attempting to send.");
 
           // Use AttachmentBuilder instead of MessageAttachment
-          const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name:`pdfFileName`}, { contentType: 'application/pdf'});
+          const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: pdfFileName, contentType: 'application/pdf' });
 
           await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
             files: [attachment]
-          })
-          // Debugging Step 2: Check the Promise
-          .then(() => {
-            console.log('Attempted to send message with PDF');
-          })
-          .catch(error => {
-            console.error('Error while sending PDF:', JSON.stringify(error, null, 2));  // This should catch any errors
           });
+
+          // Delete the loading message
+          loadingMessage.delete();
+
         } else {
           console.log("File does not exist, cannot send.");
         }
