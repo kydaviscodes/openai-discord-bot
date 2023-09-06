@@ -29,8 +29,17 @@ function generatePDF(lessonPlan, topic, ageGroup) {
     doc.end();
 
     writeStream.on('finish', () => {
-      resolve(pdfFileName);  // Return the name of the generated PDF
-    });
+      // Check the PDF file size
+    fs.stat(pdfFileName, (err, stats) => {
+    if (err) {
+      console.error('Error getting file stats:', err);
+    } else {
+      console.log("Generated PDF File Size in Bytes:", stats["size"]);
+    }
+  });
+
+  resolve(pdfFileName);  // Return the name of the generated PDF
+});
 
     writeStream.on('error', (err) => {
       reject(err);
@@ -90,9 +99,12 @@ export async function generateLessonPlan(message, client) {
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
         message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, { files: [`./${pdfFileName}`] })
+        .then(() => {
+          console.log('Attempted to send message with PDF');
+        })
         .catch(error => {
           console.error('Error while sending PDF:', JSON.stringify(error, null, 2));
-        });
+        });        
       } catch (error) {
         console.error('Error while generating PDF:', error);
       }
