@@ -108,7 +108,7 @@ export async function generateLessonPlan(message, client) {
 
           message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, {
             files: [{
-              attachment: `./${pdfFileName}`,
+              attachment: `./knownfile.pdf`,
               contentType: 'application/pdf',
               name: pdfFileName
             }]
