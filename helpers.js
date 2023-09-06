@@ -85,10 +85,15 @@ export async function generateLessonPlan(message, client) {
       console.log("Generated lesson plan: ", result);
 
       const lessonPlanJSON = convertToJSON(result);
-
-      const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
-      
-      message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, { files: [`./${pdfFileName}`] });
+      try {
+        const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
+        message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, { files: [`./${pdfFileName}`] })
+          .catch(error => {
+            console.error('Error while sending PDF:', error);
+          });
+      } catch (error) {
+        console.error('Error while generating PDF:', error);
+      }
 
     }).catch(error => {
       console.error('Error in generateLessonPlan getLessonPlan:', error);
@@ -98,3 +103,8 @@ export async function generateLessonPlan(message, client) {
     console.error('Error in generateLessonPlan:', error);
   }
 }
+
+
+
+
+
