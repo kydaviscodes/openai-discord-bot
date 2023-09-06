@@ -1,4 +1,5 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, MessageEmbed } from 'discord.js';
+
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent] });
 
 client.once('ready', () => {
@@ -6,24 +7,27 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-    console.log(`Received message: ${message.content}`);
-    if (message.content === '!sendpdf') {
-    await message.reply('Testing...');
-      console.log('!sendpdf command received. Attempting to send PDF...');
-      try {
-        await message.reply({
-          content: 'Sending PDF...',
-          files: [{
-            attachment: './knownfile.pdf',
-            name: 'knownfile.pdf'
-          }]
-        });
-        console.log('PDF sent.');
-      } catch (error) {
-        console.log('Caught an error while sending PDF.');
-        console.error(error);
-      }
+  if (message.content === '!sendpdf') {
+    try {
+      const embed = new MessageEmbed()
+        .setTitle('Your PDF File')
+        .setDescription('Here is the PDF file you requested.')
+        .setColor('#0099ff');
+
+      await message.reply({
+        embeds: [embed],
+        files: [{
+          attachment: './knownfile.pdf',
+          name: 'knownfile.pdf'
+        }]
+      });
+
+      console.log('PDF sent in an embed.');
+    } catch (error) {
+      console.error('Error sending PDF in an embed:', error);
     }
-  });
+  }
+});
+
 
 client.login('MTE0Nzk2NTQ1OTAyNzczNDYzOQ.GO7IC7.OGC03VZWT52uGovw2CWYjVVYcfhEr73QPJ1SDI');
