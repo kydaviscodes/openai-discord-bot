@@ -15,6 +15,22 @@ export async function openaiAnswer(message, client) {
   }
 }
 
+function convertToJSON(planText) {
+  const lines = planText.split("\n\n");
+  const lessonPlan = {};
+
+  lines.forEach(line => {
+    const parts = line.split(":");
+    if (parts.length >= 2) {
+      const key = parts[0].trim();
+      const value = parts.slice(1).join(":").trim();
+      lessonPlan[key] = value;
+    }
+  });
+
+  return lessonPlan;
+}
+
 export async function generateLessonPlan(message, client) {
   try {
     const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
@@ -22,32 +38,27 @@ export async function generateLessonPlan(message, client) {
     const ageGroup = userInput.slice(1).join(" ");
     console.log("User input topic is: ", topic);
     console.log("User input age group is: ", ageGroup);
-    
+
     if (!topic || !ageGroup) {
       message.reply("Please specify a topic and an age group. Usage: `/lessonplan [topic] [age group]`");
       return;
     }
-    
+
     getLessonPlan(topic, ageGroup).then(result => {
       console.log("Generated lesson plan: ", result);
-      if (result) {
-        let replyMessage = "Here's your lesson plan:\n";
-        console.log("Type of result is:", typeof result);
-        console.log("Structure of result:", JSON.stringify(result, null, 2));
-        for (const [key, value] of Object.entries(result)) {
-          console.log("Key:", key); // Will print the key
-          console.log("Value:", value); // Will print the value
-          console.log("Type of key:", typeof key); // Will print the type of the key
-          console.log("Type of value:", typeof value); // Will print the type of the value
-          replyMessage += `\n**${key}**:\n${value}\n`;
-        }
-        
-        if (replyMessage.length > 2000) {
-          replyMessage = replyMessage.substring(0, 1997) + "...";
-        }
-        
-        message.reply(replyMessage);
+
+      const lessonPlanJSON = convertToJSON(result);
+      let replyMessage = "Here's your lesson plan:\n";
+
+      for (const [key, value] of Object.entries(lessonPlanJSON)) {
+        replyMessage += `\n**${key}**:\n${value}\n`;
       }
+
+      if (replyMessage.length > 2000) {
+        replyMessage = replyMessage.substring(0, 1997) + "...";
+      }
+
+      message.reply(replyMessage);
     }).catch(error => {
       console.error('Error in generateLessonPlan getLessonPlan:', error);
     });
