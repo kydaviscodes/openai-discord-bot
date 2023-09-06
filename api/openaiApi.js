@@ -29,13 +29,13 @@ export async function getAnswer(question) {
   }
 }
 
-export async function getLessonPlan(topic) {
+export async function getLessonPlan(topic, ageGroup) {
   try {
     const chatResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a helpful assistant specialized in creating lesson plans." },
-        { role: "user", content: `Create a preschool lesson plan about ${topic}.` }
+        { role: "user", content: `Create a preschool lesson plan about ${topic} for ages ${ageGroup}.` }
       ],
     });
 

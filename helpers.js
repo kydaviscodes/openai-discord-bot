@@ -79,7 +79,7 @@ function convertToJSON(planText) {
   return lessonPlan;
 }
 
-export async function generateLessonPlan(topic, ageGroup, message, client) {
+export async function generateLessonPlan(message) {
   try {
     // Show a loading message
     const loadingMessage = await message.reply('Generating your lesson plan, please wait...');
@@ -133,8 +133,3 @@ export async function generateLessonPlan(topic, ageGroup, message, client) {
     console.error('Error in generateLessonPlan:', error);
   }
 }
-
-
-
-
-
