@@ -98,12 +98,11 @@ export async function generateLessonPlan(message, client) {
       const lessonPlanJSON = convertToJSON(result);
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
-        message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, {
-          files: [{
-            attachment: `./${pdfFileName}`,
-            name: pdfFileName
-          }]
-        })        
+        message.reply('Sending test file...', {
+          files: ['testfile.txt']
+        }).catch(error => {
+          console.error('Error while sending test file:', JSON.stringify(error, null, 2));
+        })  
         .then(() => {
           console.log('Attempted to send message with PDF');
         })
