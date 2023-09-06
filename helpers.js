@@ -1,6 +1,7 @@
 import { getAnswer, getLessonPlan } from "./api/openaiApi.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
+import { AttachmentBuilder } from 'discord.js';  // Import AttachmentBuilder here
 
 console.log("Current directory:", process.cwd());
 
