@@ -29,23 +29,14 @@ export async function getAnswer(question) {
   }
 }
 
-export async function getLessonPlan(topic, ageGroup) {
+export async function getLessonPlan(topic) {
   try {
     const chatResponse = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
-        {
-          "role": "system",
-          "content": "You are a preschool teacher AI named ChatABC..."
-        },
-        { "role": "user", "content": "/lessonplan " + topic },
-        { "role": "assistant", "content": `Sure! What is the age group for this lesson plan?` },
-        { "role": "user", "content": ageGroup }
+        { role: "system", content: "You are a helpful assistant specialized in creating lesson plans." },
+        { role: "user", content: `Create a preschool lesson plan about ${topic}.` }
       ],
-      temperature: 1,
-      max_tokens: 1500,
-      top_p: 1,
-      stream: true,
     });
 
     return chatResponse.choices[0]?.message?.content || "No lesson plan available.";
