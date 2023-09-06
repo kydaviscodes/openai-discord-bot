@@ -87,6 +87,7 @@ export async function generateLessonPlan(message) {
     const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
     const topic = userInput[0];
     const ageGroup = userInput.slice(1).join(" ");
+
     console.log("User input topic is: ", topic);
     console.log("User input age group is: ", ageGroup);
 
@@ -104,15 +105,15 @@ export async function generateLessonPlan(message) {
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
 
-        if (fs.existsSync(pdfPath)) {
-          console.log("File exists, attempting to send.");
+         if (fs.existsSync(pdfPath)) {
+            console.log("File exists, attempting to send.");
 
-          // Use AttachmentBuilder instead of MessageAttachment
-          const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: pdfFileName, contentType: 'application/pdf' });
 
-          await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
-            files: [attachment]
-          });
+            const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: pdfFileName, contentType: 'application/pdf' });
+
+            await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
+              files: [attachment]
+            });
 
           // Delete the loading message
           loadingMessage.delete();
