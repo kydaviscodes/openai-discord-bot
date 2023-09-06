@@ -2,24 +2,40 @@ import { getAnswer, getLessonPlan } from "./api/openaiApi.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
 
-function generatePDF(lessonPlan) {
-  // Create a new PDF document
-  const doc = new PDFDocument();
+// Modified generatePDF function to accept topic and ageGroup
+function generatePDF(lessonPlan, topic, ageGroup) {
+  return new Promise((resolve, reject) => {
+    const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
 
-  // Pipe its output to a writable stream (in this case, a file)
-  doc.pipe(fs.createWriteStream('LessonPlan.pdf'));
+    // Create a new PDF document
+    const doc = new PDFDocument();
 
-  // Add the lesson plan to the PDF
-  doc.text("Here's your lesson plan:\n", { underline: true });
+    // Pipe its output to a writable stream (in this case, a file)
+    const writeStream = fs.createWriteStream(pdfFileName);
 
-  for (const [key, value] of Object.entries(lessonPlan)) {
-    doc.text(`\n${key}:\n`, { underline: true });
-    doc.text(`${value}\n`);
-  }
+    doc.pipe(writeStream);
 
-  // Finalize the PDF and end the stream
-  doc.end();
+    // Add the lesson plan to the PDF
+    doc.text("Here's your lesson plan:\n", { underline: true });
+
+    for (const [key, value] of Object.entries(lessonPlan)) {
+      doc.text(`\n${key}:\n`, { underline: true });
+      doc.text(`${value}\n`);
+    }
+
+    // Finalize the PDF and end the stream
+    doc.end();
+
+    writeStream.on('finish', () => {
+      resolve(pdfFileName);  // Return the name of the generated PDF
+    });
+
+    writeStream.on('error', (err) => {
+      reject(err);
+    });
+  });
 }
+
 
 export async function openaiAnswer(message, client) {
   try {
@@ -65,17 +81,19 @@ export async function generateLessonPlan(message, client) {
       return;
     }
 
-    getLessonPlan(topic, ageGroup).then(result => {
+    getLessonPlan(topic, ageGroup).then(async (result) => {
       console.log("Generated lesson plan: ", result);
 
       const lessonPlanJSON = convertToJSON(result);
 
-      generatePDF(lessonPlanJSON);      
-      message.reply("Here's your lesson plan:", { files: ['./LessonPlan.pdf'] });
+      const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
+      
+      message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, { files: [`./${pdfFileName}`] });
 
-  }).catch(error => {
-    console.error('Error in generateLessonPlan getLessonPlan:', error);
-  });
+    }).catch(error => {
+      console.error('Error in generateLessonPlan getLessonPlan:', error);
+    });
+
   } catch (error) {
     console.error('Error in generateLessonPlan:', error);
   }
