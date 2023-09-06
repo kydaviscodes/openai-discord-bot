@@ -90,9 +90,9 @@ export async function generateLessonPlan(message, client) {
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
         message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, { files: [`./${pdfFileName}`] })
-          .catch(error => {
-            console.error('Error while sending PDF:', error);
-          });
+        .catch(error => {
+          console.error('Error while sending PDF:', JSON.stringify(error, null, 2));
+        });
       } catch (error) {
         console.error('Error while generating PDF:', error);
       }
