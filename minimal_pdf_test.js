@@ -1,4 +1,5 @@
-import { Client, GatewayIntentBits, MessageEmbed } from 'discord.js';
+import pkg from 'discord.js';
+const { Client, GatewayIntentBits, MessageEmbed } = pkg;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent] });
 
