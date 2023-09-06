@@ -100,10 +100,11 @@ export async function getLessonPlan(topic, ageGroup) {
     }
   ],
   temperature: 1,
-  max_tokens: 2000,
+  max_tokens: 1500,
   top_p: 1,
   frequency_penalty: 0,
   presence_penalty: 0,
+  stream: true,
 });
 
     const fullLessonPlan = chatResponse.choices[0]?.message?.content || "No lesson plan available.";
