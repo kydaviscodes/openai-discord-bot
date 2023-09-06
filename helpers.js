@@ -1,4 +1,25 @@
 import { getAnswer, getLessonPlan } from "./api/openaiApi.js";
+import PDFDocument from 'pdfkit';
+import fs from 'fs';
+
+function generatePDF(lessonPlan) {
+  // Create a new PDF document
+  const doc = new PDFDocument();
+
+  // Pipe its output to a writable stream (in this case, a file)
+  doc.pipe(fs.createWriteStream('LessonPlan.pdf'));
+
+  // Add the lesson plan to the PDF
+  doc.text("Here's your lesson plan:\n", { underline: true });
+
+  for (const [key, value] of Object.entries(lessonPlan)) {
+    doc.text(`\n${key}:\n`, { underline: true });
+    doc.text(`${value}\n`);
+  }
+
+  // Finalize the PDF and end the stream
+  doc.end();
+}
 
 export async function openaiAnswer(message, client) {
   try {
@@ -48,20 +69,13 @@ export async function generateLessonPlan(message, client) {
       console.log("Generated lesson plan: ", result);
 
       const lessonPlanJSON = convertToJSON(result);
-      let replyMessage = "Here's your lesson plan:\n";
 
-      for (const [key, value] of Object.entries(lessonPlanJSON)) {
-        replyMessage += `\n**${key}**:\n${value}\n`;
-      }
+      generatePDF(lessonPlanJSON);      
+      message.reply("Here's your lesson plan:", { files: ['./LessonPlan.pdf'] });
 
-      if (replyMessage.length > 2000) {
-        replyMessage = replyMessage.substring(0, 1997) + "...";
-      }
-
-      message.reply(replyMessage);
-    }).catch(error => {
-      console.error('Error in generateLessonPlan getLessonPlan:', error);
-    });
+  }).catch(error => {
+    console.error('Error in generateLessonPlan getLessonPlan:', error);
+  });
   } catch (error) {
     console.error('Error in generateLessonPlan:', error);
   }
