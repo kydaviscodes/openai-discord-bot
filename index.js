@@ -46,9 +46,9 @@ client.on("messageCreate", async (message) => {
         }
 
         if (message.content.startsWith("/")) {
-            if (message.content.startsWith("/lessonplan")) {
-                generateLessonPlan(message, client);
-            }
+            if (message.content.startsWith('/lessonplan')) {
+                generateLessonPlan(message, client);  // Make sure to pass the message object here
+              }
         }
 
         if (
