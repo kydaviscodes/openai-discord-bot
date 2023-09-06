@@ -87,37 +87,28 @@ export async function generateLessonPlan(message) {
     const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
     const topic = userInput[0];
     const ageGroup = userInput.slice(1).join(" ");
-
-    console.log("User input topic is: ", topic);
-    console.log("User input age group is: ", ageGroup);
-
+    
     if (!topic || !ageGroup) {
       message.reply("Please specify a topic and an age group. Usage: `/lessonplan [topic] [age group]`");
       return;
     }
 
     getLessonPlan(topic, ageGroup).then(async (result) => {
-      console.log("Generated lesson plan: ", result);
-
       const lessonPlanJSON = convertToJSON(result);
       const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
       const pdfPath = `./${pdfFileName}`;
+      
       try {
-        const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
+        await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
 
-         if (fs.existsSync(pdfPath)) {
-            console.log("File exists, attempting to send.");
-
-
-            const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: pdfFileName, contentType: 'application/pdf' });
-
-            await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
-              files: [attachment]
-            });
+        if (fs.existsSync(pdfPath)) {
+          const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: pdfFileName, contentType: 'application/pdf' });
+          await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
+            files: [attachment]
+          });
 
           // Delete the loading message
           loadingMessage.delete();
-
         } else {
           console.log("File does not exist, cannot send.");
         }
