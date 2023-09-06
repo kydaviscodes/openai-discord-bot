@@ -106,12 +106,11 @@ export async function generateLessonPlan(message, client) {
         if (fs.existsSync(`./${pdfFileName}`)) {
           console.log("File exists, attempting to send.");
 
+          // Use AttachmentBuilder instead of MessageAttachment
+          const attachment = new AttachmentBuilder(`./${pdfFileName}`, { contentType: 'application/pdf', name: pdfFileName });
+
           message.reply(`Here's your lesson plan for ${topic} and ${ageGroup}:`, {
-            files: [{
-              attachment: `./knownfile.pdf`,
-              contentType: 'application/pdf',
-              name: pdfFileName
-            }]
+            files: [attachment]
           })
           // Debugging Step 2: Check the Promise
           .then(() => {
