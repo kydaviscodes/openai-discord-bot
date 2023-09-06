@@ -7,6 +7,24 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+export async function getAnswer(question) {
+  console.log("Question received:", question);
+  try {
+    const chatResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: question }
+      ],
+    });
+
+    return chatResponse.choices[0]?.message?.content || "No answer available.";
+  } catch (error) {
+    console.error("Error in getAnswer:", error);
+    return "Sorry, I can't answer that question. \n" + error;
+  }
+}
+
 function splitLessonPlan(lessonPlan) {
   const sections = ["Objective", "Materials", "Introduction", "Activities", "Closure", "Extension Activities"];
   let result = {};
