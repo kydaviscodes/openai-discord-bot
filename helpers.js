@@ -94,19 +94,21 @@ export async function generateLessonPlan(message) {
       const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
       const pdfPath = `./${pdfFileName}`;  // Define pdfPath here
       
+      console.log("PDF Path:", pdfPath);
       try {
-        const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
-        console.log("PDF Path:", pdfPath);
-        
+        const { pdfFileName } = await generatePDF(lessonPlanJSON, topic, ageGroup);
+
+        // Check if the PDF file exists
+        const pdfPath = `./${pdfFileName}`;
         if (fs.existsSync(pdfPath)) {
           console.log("File exists, attempting to send.");
-        
-          const buffer = fs.readFileSync(pdfPath);  // Read the file into a buffer
+    
+          // Read the file into a buffer (only once)
+          const buffer = fs.readFileSync(pdfPath);
           const firstTenBytes = Uint8Array.prototype.slice.call(buffer, 0, 10);
           console.log("First 10 bytes of buffer:", firstTenBytes);
-        
+          // Create an attachment and send the message
           const attachment = new AttachmentBuilder(buffer, { name: pdfFileName, contentType: 'application/pdf' });
-          
           await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
             files: [attachment]
           })
@@ -116,9 +118,13 @@ export async function generateLessonPlan(message) {
           .catch(err => {
             console.error("Error sending message with PDF:", err);
           });
+
+          // Delete the loading message
+          loadingMessage.delete();
         } else {
           console.log("File does not exist, cannot send.");
         }
+
       } catch (error) {
         console.error('Error in generateLessonPlan:', error);
       }
