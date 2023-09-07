@@ -2,10 +2,12 @@ import { getAnswer, getLessonPlan } from "./api/openaiApi.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs/promises';  // Import promise-based fs
 import { AttachmentBuilder } from 'discord.js';
+import path from 'path'
+import fs from 'fs';  // Import regular fs for createWriteStream
 
 console.log("Current directory:", process.cwd());
 
-async function generatePDF(lessonPlan, topic, ageGroup) {
+export async function generatePDF(lessonPlan, topic, ageGroup) {
   const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
   const pdfPath = `./${pdfFileName}`;
   const pdfChunks = [];
@@ -66,20 +68,6 @@ export async function convertToJSON(planText) {
   });
 
   return lessonPlan;
-}
-
-export async function generatePDF(lessonPlan, topic, ageGroup) {
-  try {
-    const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-    const pdfPath = path.join(__dirname, pdfFileName);
-
-    await createPdf(lessonPlan, pdfPath); // Assuming createPdf is an async function
-
-    return pdfFileName;
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    throw error;
-  }
 }
 
 export async function sendPDF(client, channelId, pdfFileName) {
