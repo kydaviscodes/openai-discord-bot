@@ -23,9 +23,11 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
   const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
 
+  // Add title
+  doc.fontSize(24).text(`${topic} Lesson Plan for Age Group ${ageGroup}`, { align: 'center' }).fontSize(12);
+
   for (const [key, value] of Object.entries(lessonPlan)) {
-    doc.text(`\n${key}:\n`, { underline: true });
-    doc.text(`${value}\n`);
+    doc.addPage().fontSize(18).text(key, { underline: true }).fontSize(12).text(value);
   }
 
   doc.end();
@@ -57,15 +59,14 @@ export async function openaiAnswer(message, client) {
 }
 
 export async function convertToJSON(planText) {
-  const lines = planText.split("\n\n");
+  const sections = ["Objective", "Materials", "Introduction", "Activities", "Closure", "Extension Activities", "Assessments"];
   const lessonPlan = {};
 
-  lines.forEach(line => {
-    const parts = line.split(":");
-    if (parts.length >= 2) {
-      const key = parts[0].trim();
-      const value = parts.slice(1).join(":").trim();
-      lessonPlan[key] = value;
+  sections.forEach(section => {
+    const regex = new RegExp(`\\*\\*${section}\\*\\*:\\s*([\\s\\S]*?)(?=\\*\\*|$)`);
+    const match = planText.match(regex);
+    if (match && match[1]) {
+      lessonPlan[section] = match[1].trim();
     }
   });
 
