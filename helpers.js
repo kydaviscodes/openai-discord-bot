@@ -89,23 +89,31 @@ export async function generateLessonPlan(message) {
 
     getLessonPlan(topic, ageGroup).then(async (result) => {
       const lessonPlanJSON = convertToJSON(result);
-      
+      if (fs.existsSync(pdfPath)) {
+        console.log("File exists, attempting to send.");
       try {
-        const { pdfFileName, pdfBuffer } = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
-
-        // Use AttachmentBuilder with the buffer directly
-        const attachment = new AttachmentBuilder(pdfBuffer, { name: pdfFileName, contentType: 'application/pdf' });
-
-        await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
-          files: [attachment]
-        });
+          const buffer = fs.readFileSync(pdfPath);  // Read the file into a buffer
+          const attachment = new AttachmentBuilder(buffer, { name: pdfFileName, contentType: 'application/pdf' });
+          
+          await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
+            files: [attachment]
+          })
+          .then(() => {
+            console.log("Message with PDF sent successfully.");
+          })
+          .catch(err => {
+            console.error("Error sending message with PDF:", err);
+          });
 
         // Delete the loading message
         loadingMessage.delete();
+  } catch (err) {
+    console.error("Error creating AttachmentBuilder or sending message:", err);
+  }
+} else {
+  console.log("File does not exist, cannot send.");
+}
 
-      } catch (error) {
-        console.error('Error in generateLessonPlan:', error);
-      }
 
     }).catch(error => {
       console.error('Error in generateLessonPlan getLessonPlan:', error);
