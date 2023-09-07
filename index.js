@@ -31,7 +31,10 @@ client.on("disconnect", () => {
 });
 
 client.on("messageCreate", async (message) => {
-  console.log(`Received message: ${message.content}`);
+    const member = message.guild.members.cache.get(client.user.id);
+    const permissions = message.channel.permissionsFor(member);
+    console.log(`Permissions for bot in this channel: ${permissions.toArray().join(', ')}`);
+    console.log(`Received message: ${message.content}`);
     try {
         if (message.author.bot) return;
 

@@ -32,10 +32,12 @@ function generatePDF(lessonPlan, topic, ageGroup) {
 
     writeStream.on('finish', () => {
       const pdfBuffer = Buffer.from(pdfChunks);
+      console.log('File has been written');
       resolve({ pdfFileName, pdfBuffer });
     });
 
     writeStream.on('error', (err) => {
+      console.log('An error occurred:', error);
       reject(err);
     });
   });
@@ -94,6 +96,10 @@ export async function generateLessonPlan(message) {
       
       try {
         const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
+        console.log("PDF Path:", pdfPath);
+        const buffer = fs.readFileSync(pdfPath);
+        const firstTenBytes = Uint8Array.prototype.slice.call(buffer, 0, 10);
+        console.log("First 10 bytes of buffer:", firstTenBytes);
 
         if (fs.existsSync(pdfPath)) {
           console.log("File exists, attempting to send.");
