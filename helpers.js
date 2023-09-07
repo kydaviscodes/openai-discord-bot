@@ -33,10 +33,22 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
       writeStream.on('finish', resolve);
       writeStream.on('error', reject);
     });
-    const pdfBuffer = Buffer.from(pdfChunks);
+    const pdfBuffer = Buffer.concat(pdfChunks);    
     return { pdfFileName, pdfBuffer };
   } catch (error) {
     throw error;
+  }
+}
+
+export async function openaiAnswer(message, client) {
+  try {
+    const question = message.content.replace(client.user.id, "").replace("<@> ", "").trim();
+    const result = await getAnswer(question);
+    if (result && result.trim() !== '') {
+      message.reply(result);
+    }
+  } catch (error) {
+    console.error('Error in openaiAnswer:', error);
   }
 }
 
