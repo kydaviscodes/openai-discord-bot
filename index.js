@@ -2,6 +2,8 @@ import Discord, { Client, GatewayIntentBits, AttachmentBuilder} from "discord.js
 import dotenv from "dotenv";
 import { OpenAI } from './api/openaiApi.js';
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
+import fs from 'fs';
+import PDFDocument from 'pdfkit';
 
 dotenv.config();
 console.log(Object.keys(OpenAI));
@@ -15,9 +17,6 @@ const client = new Discord.Client({
       GatewayIntentBits.GuildMembers,
     ]
 });
-
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
 
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`);
