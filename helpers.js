@@ -6,7 +6,6 @@ import { AttachmentBuilder } from 'discord.js';
 
 export async function generatePDF(lessonPlan, topic, ageGroup) {
   const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-  const pdfPath = `./${pdfFileName}`;
   const pdfChunks = [];
 
   const doc = new PDFDocument();
@@ -21,9 +20,8 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
   doc.fontSize(24).text(`${topic} Lesson Plan for Age Group ${ageGroup}`, { align: 'center' }).fontSize(12);
 
   // Parse and add content
-  for (const [key, value] of Object.entries(lessonPlan)) {
-    doc.fontSize(18).text(key, { underline: true }).fontSize(12).text(value);
-    doc.moveDown();
+  for (const [section, content] of Object.entries(lessonPlan)) {
+    doc.moveDown().fontSize(18).text(section, { underline: true }).fontSize(12).text(content);
   }
 
   doc.end();
