@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
-const { Client, GatewayIntentBits, AttachmentBuilder } = require('discord.js');  // Import AttachmentBuilder here
+import PDFDocument from 'pdfkit';
+import fs from 'fs';
+import { Client, GatewayIntentBits, AttachmentBuilder } from 'discord.js'; 
 
 dotenv.config();
 console.log("Node.js version:", process.version);
