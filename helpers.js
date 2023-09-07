@@ -101,7 +101,7 @@ export async function generateLessonPlan(message) {
           const buffer = fs.readFileSync(pdfPath);  // Read the file into a buffer
           console.log("Buffer:", buffer);
           console.log("PDF Path:", pdfPath);
-          const attachment = new AttachmentBuilder(buffer, { name: pdfFileName, contentType: 'application/pdf' });
+          const attachment = new AttachmentBuilder(buffer, { name: pdfFileName });
           console.log("Attachment:", attachment);
           await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
             files: [attachment]
