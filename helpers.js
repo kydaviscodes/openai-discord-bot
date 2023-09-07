@@ -52,7 +52,7 @@ export async function openaiAnswer(message, client) {
   }
 }
 
-function convertToJSON(planText) {
+export async function convertToJSON(planText) {
   const lines = planText.split("\n\n");
   const lessonPlan = {};
 
