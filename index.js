@@ -1,15 +1,10 @@
-import Discord, { Client, GatewayIntentBits, AttachmentBuilder} from "discord.js";
+import { Client, GatewayIntentBits } from "discord.js";
 import dotenv from "dotenv";
-import { OpenAI } from './api/openaiApi.js';
-import { openaiAnswer, generateLessonPlan } from "./helpers.js";
-import fs from 'fs';
-import PDFDocument from 'pdfkit';
+import { openaiAnswer, generateAndSendLessonPlan } from "./helpers.js";
 
 dotenv.config();
-console.log(Object.keys(OpenAI));
-console.log('OpenAI object:', OpenAI);
 
-const client = new Discord.Client({
+const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
@@ -18,7 +13,7 @@ const client = new Discord.Client({
     ]
 });
 
-client.on("ready", () => {
+client.once("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
@@ -49,35 +44,18 @@ client.on("messageCreate", async (message) => {
 
         if (message.content.startsWith("/")) {
             if (message.content.startsWith('/lessonplan')) {
-                generateLessonPlan(message, client);  // Make sure to pass the message object here
-              }
-        }
-        if (message.content === '!sendpdf') {
-            try {
-              const doc = new PDFDocument();
-              const pdfPath = './test.pdf';
-              const stream = fs.createWriteStream(pdfPath);
-        
-              doc.text('Hello, this is a test PDF document.');
-              doc.pipe(stream);
-              doc.end();
-        
-              stream.on('finish', async () => {
-                const attachment = new AttachmentBuilder(fs.readFileSync(pdfPath), { name: 'test.pdf' });  // Use AttachmentBuilder here
-                await message.reply({ content: 'Here is your PDF:', files: [attachment] });
-              });
-            } catch (error) {
-              console.error('An error occurred:', error);
-              message.reply('An error occurred while generating the PDF.');
+                const args = message.content.split(' ').slice(1);  // Extract command arguments
+                const topic = args[0];
+                const ageGroup = args[1];
+                await generateAndSendLessonPlan(client, message.channel.id, topic, ageGroup);
             }
-          }
-        
+        }
 
         if (
             message.mentions.has(client.user.id) ||
             message.content.toString().includes(process.env.ROBOT_USER_ID)
         ) {
-            openaiAnswer(message, client);
+            await openaiAnswer(message, client);
         }
     } catch (error) {
         console.error("Error in message event:", error);

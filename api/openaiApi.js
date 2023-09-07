@@ -45,5 +45,3 @@ export async function getLessonPlan(topic, ageGroup) {
     return "Sorry, an error occurred while generating the lesson plan.";
   }
 }
-
-export { openai as OpenAI };

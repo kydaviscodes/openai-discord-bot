@@ -1,11 +1,9 @@
 import { getAnswer, getLessonPlan } from "./api/openaiApi.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs/promises';  // Import promise-based fs
+import fsCore from 'fs';  // Import core fs for createWriteStream
 import { AttachmentBuilder } from 'discord.js';
-import path from 'path'
-import fs from 'fs';  // Import regular fs for createWriteStream
-
-console.log("Current directory:", process.cwd());
+import path from 'path';
 
 export async function generatePDF(lessonPlan, topic, ageGroup) {
   const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
@@ -17,7 +15,7 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
     pdfChunks.push(chunk);
   });
 
-  const writeStream = fs.createWriteStream(pdfFileName);
+  const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
 
   for (const [key, value] of Object.entries(lessonPlan)) {
@@ -40,7 +38,6 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
     throw error;
   }
 }
-
 
 export async function openaiAnswer(message, client) {
   try {
@@ -92,5 +89,21 @@ export async function sendPDF(client, channelId, pdfFileName) {
   } catch (error) {
     console.error('Error sending PDF:', error);
     throw error;
+  }
+}
+
+export async function generateAndSendLessonPlan(client, channelId, topic, ageGroup) {
+  try {
+    // Fetch the lesson plan from OpenAI
+    const lessonPlanText = await getLessonPlan(topic, ageGroup);
+    const lessonPlanJSON = convertToJSON(lessonPlanText);
+
+    // Generate the PDF
+    const { pdfFileName, pdfBuffer } = await generatePDF(lessonPlanJSON, topic, ageGroup);
+
+    // Send the PDF
+    await sendPDF(client, channelId, pdfFileName, pdfBuffer);
+  } catch (error) {
+    console.error('Error in generateAndSendLessonPlan:', error);
   }
 }
