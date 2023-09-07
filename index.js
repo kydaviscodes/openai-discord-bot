@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import dotenv from "dotenv";
 import { openaiAnswer, generateAndSendLessonPlan } from "./helpers.js";
+import { registerCommands } from './registerCommands.js';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const client = new Client({
 });
 
 client.once("ready", () => {
+    registerCommands(client);
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
@@ -42,15 +44,6 @@ client.on("messageCreate", async (message) => {
             return;
         }
 
-        if (message.content.startsWith("/")) {
-            if (message.content.startsWith('/lessonplan')) {
-                const args = message.content.split(' ').slice(1);  // Extract command arguments
-                const topic = args[0];
-                const ageGroup = args[1];
-                await generateAndSendLessonPlan(client, message.channel.id, topic, ageGroup);
-            }
-        }
-
         if (
             message.mentions.has(client.user.id) ||
             message.content.toString().includes(process.env.ROBOT_USER_ID)
@@ -62,6 +55,22 @@ client.on("messageCreate", async (message) => {
     }
 });
 
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+  
+    const { commandName } = interaction;
+  
+    if (commandName === 'lessonplan') {
+      const topic = interaction.options.getString('topic');
+      const ageGroup = interaction.options.getString('agegroup');
+  
+      // Generate and send the lesson plan
+      await generateAndSendLessonPlan(client, interaction.channel.id, topic, ageGroup);
+  
+      await interaction.reply(`Lesson plan for ${topic} and age group ${ageGroup} has been generated.`);
+    }
+  });
+  
 console.log("Node.js version:", process.version);
 
 client.login(process.env.CLIENT_TOKEN);
