@@ -61,13 +61,20 @@ client.on('interactionCreate', async (interaction) => {
     const { commandName } = interaction;
   
     if (commandName === 'lessonplan') {
-      const topic = interaction.options.getString('topic');
-      const ageGroup = interaction.options.getString('agegroup');
+      try {
+        await interaction.deferReply();  // Immediate reply to acknowledge the command
   
-      // Generate and send the lesson plan
-      await generateAndSendLessonPlan(client, interaction.channel.id, topic, ageGroup);
+        const topic = interaction.options.getString('topic');
+        const ageGroup = interaction.options.getString('agegroup');
   
-      await interaction.reply(`Lesson plan for ${topic} and age group ${ageGroup} has been generated.`);
+        // Generate and send the lesson plan
+        await generateAndSendLessonPlan(client, interaction.channel.id, topic, ageGroup);
+  
+        await interaction.editReply(`Lesson plan for ${topic} and age group ${ageGroup} has been generated.`);
+      } catch (error) {
+        console.error(error);
+        await interaction.followUp('An error occurred while generating the lesson plan.');
+      }
     }
   });
   
