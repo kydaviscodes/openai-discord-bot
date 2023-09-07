@@ -53,7 +53,9 @@ export async function openaiAnswer(message, client) {
 export async function generateAndSendLessonPlan(client, channelId, topic, ageGroup) {
   try {
     const lessonPlanText = await getLessonPlan(topic, ageGroup);
+    console.log("Lesson Plan Text:", lessonPlanText);
     const lessonPlan = parseLessonPlan(lessonPlanText);
+    console.log("Lesson Plan Object:", lessonPlan);
     const { pdfFileName, pdfBuffer } = await generatePDF(lessonPlan, topic, ageGroup);
     await sendPDF(client, channelId, pdfFileName, pdfBuffer);
   } catch (error) {
