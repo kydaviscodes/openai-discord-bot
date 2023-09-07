@@ -81,7 +81,7 @@ export async function generateLessonPlan(message) {
     const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
     const topic = userInput[0];
     const ageGroup = userInput.slice(1).join(" ");
-
+    
     if (!topic || !ageGroup) {
       message.reply("Please specify a topic and an age group. Usage: `/lessonplan [topic] [age group]`");
       return;
@@ -89,24 +89,33 @@ export async function generateLessonPlan(message) {
 
     getLessonPlan(topic, ageGroup).then(async (result) => {
       const lessonPlanJSON = convertToJSON(result);
-
+      const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
+      const pdfPath = `./${pdfFileName}`;  // Define pdfPath here
+      
       try {
-        const { pdfFileName, pdfBuffer } = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
+        const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
 
-        const attachment = new AttachmentBuilder(pdfBuffer, { name: pdfFileName, contentType: 'application/pdf' });
+        if (fs.existsSync(pdfPath)) {
+          console.log("File exists, attempting to send.");
+        
+          const buffer = fs.readFileSync(pdfPath);  // Read the file into a buffer
+          const attachment = new AttachmentBuilder(buffer, { name: pdfFileName, contentType: 'application/pdf' });
+          
+          await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
+            files: [attachment]
+          })
+          .then(() => {
+            console.log("Message with PDF sent successfully.");
+          })
+          .catch(err => {
+            console.error("Error sending message with PDF:", err);
+          });
 
-        await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
-          files: [attachment]
-        })
-        .then(() => {
-          console.log("Message with PDF sent successfully.");
-        })
-        .catch(err => {
-          console.error("Error sending message with PDF:", err);
-        });
-
-        // Delete the loading message
-        loadingMessage.delete();
+          // Delete the loading message
+          loadingMessage.delete();
+        } else {
+          console.log("File does not exist, cannot send.");
+        }
 
       } catch (error) {
         console.error('Error in generateLessonPlan:', error);
