@@ -1,4 +1,4 @@
-import Discord, { Client, GatewayIntentBits } from "discord.js";
+import Discord, { Client, GatewayIntentBits, AttachmentBuilder} from "discord.js";
 import dotenv from "dotenv";
 import { OpenAI } from './api/openaiApi.js';
 import { openaiAnswer, generateLessonPlan } from "./helpers.js";
@@ -15,6 +15,9 @@ const client = new Discord.Client({
       GatewayIntentBits.GuildMembers,
     ]
 });
+
+const fs = require('fs');
+const PDFDocument = require('pdfkit');
 
 client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -81,10 +84,6 @@ client.on("messageCreate", async (message) => {
         console.error("Error in message event:", error);
     }
 });
-
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
-const { Client, GatewayIntentBits, AttachmentBuilder } = require('discord.js');  // Import AttachmentBuilder here
 
 console.log("Node.js version:", process.version);
 
