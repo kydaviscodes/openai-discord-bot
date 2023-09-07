@@ -15,25 +15,25 @@ const client = new Discord.Client({
 });
 
 client.once('ready', () => {
-  console.log(`Logged in as ${client.user.tag}`);
-});
+    console.log(`Logged in as ${client.user.tag}`);
+  });
+  
+  client.on('messageCreate', async (message) => {
+    if (message.content === '!sendpdf') {
+      const doc = new PDFDocument();
+      const pdfPath = './test.pdf';
+      const stream = fs.createWriteStream(pdfPath);
+  
+      doc.text('Hello, this is a test PDF document.');
+      doc.pipe(stream);
+      doc.end();
+  
+      stream.on('finish', async () => {
+        const buffer = fs.readFileSync(pdfPath);
+        const attachment = new AttachmentBuilder(buffer, { name: 'test.pdf' });
+        await message.reply({ content: 'Here is your PDF:', files: [attachment] });
+      });
+    }
+  });
 
-client.on('messageCreate', async (message) => {
-  if (message.content === '!sendtest') {
-    const doc = new PDFDocument();
-    const pdfPath = './test.pdf';
-    const stream = fs.createWriteStream(pdfPath);
-
-    doc.text('Hello, this is a test PDF document.');
-    doc.pipe(stream);
-    doc.end();
-
-    stream.on('finish', async () => {
-      const buffer = fs.readFileSync(pdfPath);
-      const attachment = new Discord.MessageAttachment(buffer, 'test.pdf'); // Using MessageAttachment here
-      await message.reply({ content: 'Here is your PDF:', files: [attachment] });
-    });
-  }
-});
-
-client.login(process.env.BOT_TOKEN);
+client.login(process.env.CLIENT_TOKEN);
