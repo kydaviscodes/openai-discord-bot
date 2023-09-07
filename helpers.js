@@ -4,6 +4,11 @@ import fs from 'fs/promises';  // Import promise-based fs
 import fsCore from 'fs';  // Import core fs for createWriteStream
 import { AttachmentBuilder } from 'discord.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export async function generatePDF(lessonPlan, topic, ageGroup) {
   const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
@@ -96,7 +101,8 @@ export async function generateAndSendLessonPlan(client, channelId, topic, ageGro
   try {
     // Fetch the lesson plan from OpenAI
     const lessonPlanText = await getLessonPlan(topic, ageGroup);
-    const lessonPlanJSON = convertToJSON(lessonPlanText);
+    console.log("Lesson Plan Text:", lessonPlanText);  // Debugging line
+    const lessonPlanJSON = await convertToJSON(lessonPlanText);  // Added await here
 
     // Generate the PDF
     const { pdfFileName, pdfBuffer } = await generatePDF(lessonPlanJSON, topic, ageGroup);
