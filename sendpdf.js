@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const { Client, GatewayIntentBits, AttachmentBuilder } = require('discord.js');  // Import AttachmentBuilder here
 
+dotenv.config();
 console.log("Node.js version:", process.version);
 
 const client = new Client({
@@ -48,4 +50,4 @@ client.on('error', (error) => {
 });
 
 
-client.login('MTE0Nzk2NTQ1OTAyNzczNDYzOQ.GnR21Y.bnEwH21ErNdTquAJYxHIbb7SiTKs5u0csxP1LQ');
+client.login(process.env.CLIENT_TOKEN);
