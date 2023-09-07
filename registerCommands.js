@@ -7,13 +7,13 @@ export const registerCommands = (client) => {
       options: [
         {
           name: 'topic',
-          type: '3',
+          type: 3,
           description: 'The topic for the lesson plan',
           required: true,
         },
         {
           name: 'agegroup',
-          type: '3',
+          type: 3,
           description: 'The age group for the lesson plan',
           required: true,
         },
