@@ -1,59 +1,52 @@
 import { getAnswer, getLessonPlan } from "./api/openaiApi.js";
 import PDFDocument from 'pdfkit';
-import fs from 'fs';
-import { AttachmentBuilder } from 'discord.js';  // Import AttachmentBuilder here
+import fs from 'fs/promises';  // Import promise-based fs
+import { AttachmentBuilder } from 'discord.js';
 
 console.log("Current directory:", process.cwd());
 
-function generatePDF(lessonPlan, topic, ageGroup) {
-  return new Promise((resolve, reject) => {
-    const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-    const pdfPath = `./${pdfFileName}`;
-    const pdfChunks = [];
+async function generatePDF(lessonPlan, topic, ageGroup) {
+  const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
+  const pdfPath = `./${pdfFileName}`;
+  const pdfChunks = [];
 
-    // Create a new PDF document
-    const doc = new PDFDocument();
-    doc.on('data', chunk => {
-      pdfChunks.push(chunk);
-    });
-
-    // Pipe its output to a writable stream (in this case, a file)
-    const writeStream = fs.createWriteStream(pdfFileName);
-    doc.pipe(writeStream);
-
-    // Add the lesson plan to the PDF
-    for (const [key, value] of Object.entries(lessonPlan)) {
-      doc.text(`\n${key}:\n`, { underline: true });
-      doc.text(`${value}\n`);
-    }
-
-    // Finalize the PDF and end the stream
-    doc.end();
-
-    writeStream.on('finish', () => {
-      const pdfBuffer = Buffer.from(pdfChunks);
-      console.log('File has been written');
-      resolve({ pdfFileName, pdfBuffer });
-    });
-
-    writeStream.on('error', (err) => {
-      console.log('An error occurred:', error);
-      reject(err);
-    });
+  const doc = new PDFDocument();
+  doc.on('data', chunk => {
+    pdfChunks.push(chunk);
   });
+
+  const writeStream = fs.createWriteStream(pdfFileName);
+  doc.pipe(writeStream);
+
+  for (const [key, value] of Object.entries(lessonPlan)) {
+    doc.text(`\n${key}:\n`, { underline: true });
+    doc.text(`${value}\n`);
+  }
+
+  doc.end();
+
+  try {
+    await new Promise((resolve, reject) => {
+      writeStream.on('finish', resolve);
+      writeStream.on('error', reject);
+    });
+    const pdfBuffer = Buffer.from(pdfChunks);
+    console.log('File has been written');
+    return { pdfFileName, pdfBuffer };
+  } catch (error) {
+    console.log('An error occurred:', error);
+    throw error;
+  }
 }
 
 
 export async function openaiAnswer(message, client) {
   try {
-    var question = message.content.replace(client.user.id, "").replace("<@> ", "").trim();
-    getAnswer(question).then(result => {
-        if (result && result.trim() !== '') {
-            message.reply(result);
-        }
-    }).catch(error => {
-        console.error('Error in openaiAnswer getAnswer:', error);
-    });
+    const question = message.content.replace(client.user.id, "").replace("<@> ", "").trim();
+    const result = await getAnswer(question);
+    if (result && result.trim() !== '') {
+      message.reply(result);
+    }
   } catch (error) {
     console.error('Error in openaiAnswer:', error);
   }
@@ -75,65 +68,41 @@ function convertToJSON(planText) {
   return lessonPlan;
 }
 
-export async function generateLessonPlan(message) {
+export async function generatePDF(lessonPlan, topic, ageGroup) {
   try {
-    // Show a loading message
-    const loadingMessage = await message.reply('Generating your lesson plan, please wait...');
+    const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
+    const pdfPath = path.join(__dirname, pdfFileName);
 
-    const userInput = message.content.replace("/lessonplan", "").trim().split(" ");
-    const topic = userInput[0];
-    const ageGroup = userInput.slice(1).join(" ");
-    
-    if (!topic || !ageGroup) {
-      message.reply("Please specify a topic and an age group. Usage: `/lessonplan [topic] [age group]`");
-      return;
-    }
+    await createPdf(lessonPlan, pdfPath); // Assuming createPdf is an async function
 
-    getLessonPlan(topic, ageGroup).then(async (result) => {
-      const lessonPlanJSON = convertToJSON(result);
-      const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-      const pdfPath = `./${pdfFileName}`;  // Define pdfPath here
-      
-      console.log("PDF Path:", pdfPath);
-      try {
-        const { pdfFileName } = await generatePDF(lessonPlanJSON, topic, ageGroup);
-
-        // Check if the PDF file exists
-        const pdfPath = `./${pdfFileName}`;
-        if (fs.existsSync(pdfPath)) {
-          console.log("File exists, attempting to send.");
-    
-          // Read the file into a buffer (only once)
-          const buffer = fs.readFileSync(pdfPath);
-          const firstTenBytes = Uint8Array.prototype.slice.call(buffer, 0, 10);
-          console.log("First 10 bytes of buffer:", firstTenBytes);
-          // Create an attachment and send the message
-          const attachment = new AttachmentBuilder(buffer, { name: pdfFileName, contentType: 'application/pdf' });
-          await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
-            files: [attachment]
-          })
-          .then(() => {
-            console.log("Message with PDF sent successfully.");
-          })
-          .catch(err => {
-            console.error("Error sending message with PDF:", err);
-          });
-
-          // Delete the loading message
-          loadingMessage.delete();
-        } else {
-          console.log("File does not exist, cannot send.");
-        }
-
-      } catch (error) {
-        console.error('Error in generateLessonPlan:', error);
-      }
-
-    }).catch(error => {
-      console.error('Error in generateLessonPlan getLessonPlan:', error);
-    });
-
+    return pdfFileName;
   } catch (error) {
-    console.error('Error in generateLessonPlan:', error);
+    console.error('Error generating PDF:', error);
+    throw error;
+  }
+}
+
+export async function sendPDF(client, channelId, pdfFileName) {
+  try {
+    const pdfPath = path.join(__dirname, pdfFileName);
+
+    // Check if file exists
+    await fs.access(pdfPath);
+
+    // Read the file into a buffer
+    const buffer = await fs.readFile(pdfPath);
+
+    // Create an attachment using AttachmentBuilder
+    const attachment = new AttachmentBuilder()
+      .setName(pdfFileName)
+      .setFile(buffer);
+
+    // Send the PDF
+    await client.channels.cache.get(channelId).send({ files: [attachment] });
+
+    console.log('Message with PDF sent successfully.');
+  } catch (error) {
+    console.error('Error sending PDF:', error);
+    throw error;
   }
 }
