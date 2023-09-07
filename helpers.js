@@ -5,21 +5,23 @@ import { AttachmentBuilder } from 'discord.js';  // Import AttachmentBuilder her
 
 console.log("Current directory:", process.cwd());
 
-// Modified generatePDF function to accept topic and ageGroup
 function generatePDF(lessonPlan, topic, ageGroup) {
   return new Promise((resolve, reject) => {
     const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
+    const pdfPath = `./${pdfFileName}`;
+    const pdfChunks = [];
 
     // Create a new PDF document
     const doc = new PDFDocument();
-    const pdfPath = `./${pdfFileName}`
+    doc.on('data', chunk => {
+      pdfChunks.push(chunk);
+    });
+
     // Pipe its output to a writable stream (in this case, a file)
     const writeStream = fs.createWriteStream(pdfFileName);
-
     doc.pipe(writeStream);
 
     // Add the lesson plan to the PDF
-
     for (const [key, value] of Object.entries(lessonPlan)) {
       doc.text(`\n${key}:\n`, { underline: true });
       doc.text(`${value}\n`);
@@ -29,17 +31,9 @@ function generatePDF(lessonPlan, topic, ageGroup) {
     doc.end();
 
     writeStream.on('finish', () => {
-      // Check the PDF file size
-    fs.stat(pdfFileName, (err, stats) => {
-    if (err) {
-      console.error('Error getting file stats:', err);
-    } else {
-      console.log("Generated PDF File Size in Bytes:", stats["size"]);
-    }
-  });
-
-  resolve(pdfFileName);  // Return the name of the generated PDF
-});
+      const pdfBuffer = Buffer.from(pdfChunks);
+      resolve({ pdfFileName, pdfBuffer });
+    });
 
     writeStream.on('error', (err) => {
       reject(err);
@@ -95,38 +89,19 @@ export async function generateLessonPlan(message) {
 
     getLessonPlan(topic, ageGroup).then(async (result) => {
       const lessonPlanJSON = convertToJSON(result);
-      const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-      const pdfPath = `./${pdfFileName}`;
       
       try {
-        const pdfFileName = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
-        const pdfPath = `./${pdfFileName}`;
+        const { pdfFileName, pdfBuffer } = await generatePDF(lessonPlanJSON, topic, ageGroup); // Wait for the PDF to be generated
 
-        if (fs.existsSync(pdfPath)) {
-          console.log("File exists, attempting to send.");
-        
-          try {
-            const buffer = fs.readFileSync(pdfPath);
-            const attachment = new AttachmentBuilder(buffer, { name: pdfFileName, contentType: 'application/pdf' });
-            
-            await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
-              files: [attachment]
-            })
-            .then(() => {
-              console.log("Message with PDF sent successfully.");
-            })
-            .catch(err => {
-              console.error("Error sending message with PDF:", err);
-            });
-        
-            // Delete the loading message
-            loadingMessage.delete();
-      } catch (err) {
-        console.error("Error creating AttachmentBuilder or sending message:", err);
-          }
-        } else {
-          console.log("File does not exist, cannot send.");
-        }
+        // Use AttachmentBuilder with the buffer directly
+        const attachment = new AttachmentBuilder(pdfBuffer, { name: pdfFileName, contentType: 'application/pdf' });
+
+        await message.reply(`Here's your lesson plan on ${topic} for ages ${ageGroup}:`, {
+          files: [attachment]
+        });
+
+        // Delete the loading message
+        loadingMessage.delete();
 
       } catch (error) {
         console.error('Error in generateLessonPlan:', error);
