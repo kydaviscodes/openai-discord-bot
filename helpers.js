@@ -26,6 +26,13 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
     pdfChunks.push(chunk);
   });
 
+  doc.image('./images/ABCLogo.png', {
+    width: 150,  // Adjust width as needed
+    height: 67,  // Adjust height as needed (keeping your 2.25:1 ratio)
+    x: 50,  // X position, adjust as needed
+    y: 50,  // Y position, adjust as needed
+  });
+
   const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
   doc.fontSize(18).text(`Lesson Plan: ${toTitleCase(topic)}`, { align: 'center', underline: true }).fontSize(12).moveDown();
