@@ -18,14 +18,16 @@ function toTitleCase(str) {
 
 export async function generatePDF(lessonPlan, topic, ageGroup) {
   const pdfFileName = `${toTitleCase(topic)}_${ageGroup}_LessonPlan.pdf`;
+  const pdfPath = `./${pdfFileName}`;
+  const pdfChunks = [];
+
   const doc = new PDFDocument();
   doc.on('data', chunk => {
     pdfChunks.push(chunk);
   });
+
   const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
-
-  // Add a title to the PDF
   doc.fontSize(18).text(`Lesson Plan: ${toTitleCase(topic)}`, { align: 'center', underline: true }).fontSize(12).moveDown();
 
   for (const [key, value] of Object.entries(lessonPlan)) {
