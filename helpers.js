@@ -22,10 +22,24 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
 
   const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
+  doc.fontSize(18).text(topic, { align: 'center', underline: true }).fontSize(12).moveDown();
 
   for (const [key, value] of Object.entries(lessonPlan)) {
-    doc.text(`\n${key}:\n`, { underline: true });
-    doc.text(`${value}\n`);
+    if (key === 'Activities') {
+      doc.text(`\n${key}:\n`, { underline: true });
+      // Parse and handle activities separately
+      const activities = value.split('\n');
+      activities.forEach((activity, index) => {
+        if (index === 0) {
+          doc.text(`${activity}\n`);
+        } else {
+          doc.text(`${activity}\n`, { underline: index % 2 === 0 });
+        }
+      });
+    } else {
+      doc.text(`\n${key}:\n`, { underline: true });
+      doc.text(`${value}\n`);
+    }
   }
 
   doc.end();
