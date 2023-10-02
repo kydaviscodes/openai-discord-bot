@@ -10,30 +10,35 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export async function generatePDF(lessonPlan, topic, ageGroup) {
-  const pdfFileName = `${topic}_${ageGroup}_LessonPlan.pdf`;
-  const pdfPath = `./${pdfFileName}`;
-  const pdfChunks = [];
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
 
+export async function generatePDF(lessonPlan, topic, ageGroup) {
+  const pdfFileName = `${toTitleCase(topic)}_${ageGroup}_LessonPlan.pdf`;
   const doc = new PDFDocument();
   doc.on('data', chunk => {
     pdfChunks.push(chunk);
   });
-
   const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
-  doc.fontSize(18).text(topic, { align: 'center', underline: true }).fontSize(12).moveDown();
+
+  // Add a title to the PDF
+  doc.fontSize(18).text(`Lesson Plan: ${toTitleCase(topic)}`, { align: 'center', underline: true }).fontSize(12).moveDown();
 
   for (const [key, value] of Object.entries(lessonPlan)) {
     if (key === 'Activities') {
       doc.text(`\n${key}:\n`, { underline: true });
       // Parse and handle activities separately
       const activities = value.split('\n');
-      activities.forEach((activity, index) => {
-        if (index === 0) {
-          doc.text(`${activity}\n`);
+      activities.forEach((activity) => {
+        // Check if the line starts with a number followed by a period
+        if (/^\d+\./.test(activity.trim())) {
+          doc.text(`${activity}\n`, { underline: true });
         } else {
-          doc.text(`${activity}\n`, { underline: index % 2 === 0 });
+          doc.text(`${activity}\n`);
         }
       });
     } else {
