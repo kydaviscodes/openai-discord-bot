@@ -22,7 +22,6 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
   const pdfChunks = [];
 
   const doc = new PDFDocument();
-  let pageNumber = 1;
   doc.on('data', chunk => {
     pdfChunks.push(chunk);
   });
@@ -39,7 +38,6 @@ doc.image('./images/ABCLogo.png', {
     x: xPosition,
     y: yPosition,
 });
-doc.fontSize(12).text(`Page ${pageNumber}`, 520, 760);
 
   const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
@@ -63,12 +61,6 @@ doc.fontSize(12).text(`Page ${pageNumber}`, 520, 760);
       doc.text(`${value}\n`);
     }
   }
-
-  doc.on('pageAdded', () => {
-    // Increment and add the page number on subsequent pages
-    pageNumber += 1;
-    doc.fontSize(12).text(`Page ${pageNumber}`, 520, 760);
-  });
 
   doc.end();
 
