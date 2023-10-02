@@ -26,12 +26,18 @@ export async function generatePDF(lessonPlan, topic, ageGroup) {
     pdfChunks.push(chunk);
   });
 
-  doc.image('./images/ABCLogo.png', {
-    width: 150,  // Adjust width as needed
-    height: 67,  // Adjust height as needed (keeping your 2.25:1 ratio)
-    x: 50,  // X position, adjust as needed
-    y: 50,  // Y position, adjust as needed
-  });
+const pageWidth = 612;  // Default width for a letter-sized PDF in points
+const imageWidth = 100;  // Example width, adjust as needed
+const margin = 15;  // Example margin, adjust as needed
+
+const xPosition = pageWidth - imageWidth - margin;
+const yPosition = margin;  // Small margin from the top
+
+doc.image('./images/ABCLogo.png', {
+    width: imageWidth,
+    x: xPosition,
+    y: yPosition,
+});
 
   const writeStream = fsCore.createWriteStream(pdfFileName);
   doc.pipe(writeStream);
